@@ -19,8 +19,9 @@
       transform-origin: top left;
     }
 
+    /* UPDATED: zoom now visually favors left-side chute */
     .booth-zoomed {
-      transform: scale(3.2) translate(35px, 20px);
+      transform: scale(3.2) translate(60px, 30px);
     }
 
     .confetti-piece {
@@ -142,7 +143,7 @@
         <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse"></div>
       </div>
 
-      <!-- BALL AREA (raised so nothing overlaps clicks) -->
+      <!-- BALL AREA -->
       <div id="ball-area"
         class="absolute"
         style="bottom: 140px; left: 0; right: 0; height: 160px; z-index: 10;">
@@ -167,10 +168,9 @@
 
       </div>
 
-      <!-- TICKET CHUTE (MOVED BELOW BALLS) -->
+      <!-- TICKET CHUTE (NOW LEFT SIDE) -->
       <div id="ticket-chute-area"
-        style="position:absolute; bottom:0; left:50%;
-        transform:translateX(-50%); width:80px; z-index:1;">
+        style="position:absolute; bottom:10px; left:18px; width:80px; z-index:5;">
 
         <div id="ticket-chute"
           style="width:70px;height:20px;background:#000;border:3px solid #333;">
