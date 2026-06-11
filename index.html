@@ -33,9 +33,10 @@
       100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
     }
     
+    /* Smooth natural extrusion from the chute container */
     @keyframes rollDown {
-      0% { top: -400px; }
-      100% { top: 0px; }
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(0); }
     }
 
     .hide-scrollbar {
@@ -186,7 +187,6 @@
       chute_color: '#22c55e'
     };
 
-    // Safely isolated initialization to protect environment workflow stability if dependencies fail to register
     if (window.elementSdk && window.elementSdk.init) {
       window.elementSdk.init({
         defaultConfig,
@@ -197,10 +197,10 @@
         mapToCapabilities: (config) => ({
           recolorables: [
             { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
-            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
-            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
-            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
-            { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
+            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color = v }); }},
+            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color = v }); }},
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color = v }); }},
+            { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color = v }); }}
           ],
           borderables: [],
           fontEditable: undefined,
@@ -296,27 +296,35 @@
       ticketImg.src = 'ticket.png';
       ticketImg.alt = 'Ticket';
       
+      // Changed to a smooth 15-second motorized linear crawl out from the slot
       ticketImg.style.cssText = `
         position: absolute;
-        top: -400px;
+        top: 0;
         left: 5px;
         width: 60px;
         height: auto; 
-        animation: rollDown 5.2s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+        transform: translateY(-100%);
+        animation: rollDown 15s linear forwards;
         user-select: none;
         -webkit-user-drag: none;
       `;
       
       output.appendChild(ticketImg);
 
-      // Fully unrestricted direct coordinates translation framework 
       let isDragging = false;
       let startY = 0;
       let currentY = 0;
 
       ticketImg.addEventListener('mousedown', (e) => {
         isDragging = true;
-        ticketImg.style.animation = 'none'; // Unlocks keyframe clamping instantly
+        
+        // Dynamically extract precisely where the image is along its timeline to avoid jumps
+        const style = window.getComputedStyle(ticketImg);
+        const matrix = new DOMMatrix(style.transform);
+        currentY = matrix.f;
+        
+        ticketImg.style.animation = 'none'; 
+        ticketImg.style.transform = `translateY(${currentY}px)`;
         ticketImg.style.cursor = 'grabbing';
         startY = e.pageY - currentY;
         e.preventDefault();
@@ -333,21 +341,26 @@
         if (!isDragging) return;
         currentY = e.pageY - startY;
         
-        // Boundaries built to let the asset slide up/down past its exact pixel footprint safely
-        if (currentY < -550) currentY = -550;
-        if (currentY > 400) currentY = 400;
+        // Boundaries perfectly sized for infinite desktop pulling range
+        if (currentY < -600) currentY = -600;
+        if (currentY > 450) currentY = 450;
         
         ticketImg.style.transform = `translateY(${currentY}px)`;
       });
 
-      // Mouse Wheel Support 
+      // Mouse Wheel Support seamlessly stops the automation timeline on scroll wheel touch
       output.addEventListener('wheel', (e) => {
         e.preventDefault();
-        ticketImg.style.animation = 'none';
+        if (ticketImg.style.animation !== 'none') {
+          const style = window.getComputedStyle(ticketImg);
+          const matrix = new DOMMatrix(style.transform);
+          currentY = matrix.f;
+          ticketImg.style.animation = 'none';
+        }
         currentY -= e.deltaY * 0.7;
         
-        if (currentY < -550) currentY = -550;
-        if (currentY > 400) currentY = 400;
+        if (currentY < -600) currentY = -600;
+        if (currentY > 450) currentY = 450;
         
         ticketImg.style.transform = `translateY(${currentY}px)`;
       });
