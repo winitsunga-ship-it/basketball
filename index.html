@@ -44,17 +44,40 @@
     }
     .ball:active { cursor: grabbing; }
     
-    .aim-line {
-      pointer-events: none;
-      stroke-dasharray: 6 4;
-    }
-    
     .pixel-border {
       box-shadow: 
         4px 0 0 0 #1e3a5f,
         -4px 0 0 0 #1e3a5f,
         0 4px 0 0 #1e3a5f,
         0 -4px 0 0 #1e3a5f;
+    }
+
+    /* Dedicated arc animations for each ball to hit the center hoop perfectly */
+    .ball-0-flying {
+      animation: arcBall0 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    }
+    @keyframes arcBall0 {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      50% { transform: translate(56px, -320px) scale(0.7); opacity: 1; }
+      100% { transform: translate(112px, -275px) scale(0.4); opacity: 0; }
+    }
+
+    .ball-1-flying {
+      animation: arcBall1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    }
+    @keyframes arcBall1 {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      50% { transform: translate(6px, -320px) scale(0.7); opacity: 1; }
+      100% { transform: translate(12px, -275px) scale(0.4); opacity: 0; }
+    }
+
+    .ball-2-flying {
+      animation: arcBall2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    }
+    @keyframes arcBall2 {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      50% { transform: translate(-49px, -320px) scale(0.7); opacity: 1; }
+      100% { transform: translate(-98px, -275px) scale(0.4); opacity: 0; }
     }
 
     .net-swish {
@@ -149,28 +172,33 @@
       chute_color: '#22c55e'
     };
 
-    window.elementSdk.init({
-      defaultConfig,
-      onConfigChange: async (config) => {
-        document.getElementById('title-text').textContent = config.game_title || defaultConfig.game_title;
-        document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
-      },
-      mapToCapabilities: (config) => ({
-        recolorables: [
-          { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
-          { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
-          { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
-          { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
-          { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
-        ],
-        borderables: [],
-        fontEditable: undefined,
-        fontSizeable: undefined
-      }),
-      mapToEditPanelValues: (config) => new Map([
-        ['game_title', config.game_title || defaultConfig.game_title]
-      ])
-    });
+    // Safely wrap SDK initialization to avoid breaking standalone page views
+    if (window.elementSdk && window.elementSdk.init) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          document.getElementById('title-text').textContent = config.game_title || defaultConfig.game_title;
+          document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
+            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
+            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
+            { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['game_title', config.game_title || defaultConfig.game_title]
+        ])
+      });
+    } else {
+      console.warn("Element SDK missing or failed to load. Running in standalone preview.");
+    }
 
     // Game logic
     let score = 0;
@@ -180,33 +208,16 @@
     document.querySelectorAll('.ball').forEach((ball, i) => {
       ball.addEventListener('click', (e) => {
         if (ball.dataset.shot === 'true') return;
-        shootBall(ball);
+        shootBall(ball, i);
       });
     });
 
-    function shootBall(ball) {
+    function shootBall(ball, index) {
       ball.dataset.shot = 'true';
       ball.style.cursor = 'default';
       
-      // Calculate exact trajectory to the hoop
-      const hoop = document.getElementById('hoop');
-      const hoopRect = hoop.getBoundingClientRect();
-      const ballRect = ball.getBoundingClientRect();
-      
-      // Math to find the exact center-to-center trajectory
-      const targetX = (hoopRect.left + hoopRect.width / 2) - (ballRect.left + ballRect.width / 2);
-      const targetY = hoopRect.top - ballRect.top;
-
-      // Dynamically animate the ball straight into the hoop!
-      ball.animate([
-        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-        { transform: `translate(${targetX * 0.5}px, ${targetY * 0.8}px) scale(0.8)`, opacity: 1 },
-        { transform: `translate(${targetX}px, ${targetY}px) scale(0.4)`, opacity: 0 }
-      ], {
-        duration: 800,
-        easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-        fill: 'forwards'
-      });
+      // Assign the specific keyframe animation class based on which ball index was clicked
+      ball.classList.add(`ball-${index}-flying`);
       
       setTimeout(() => {
         score++;
@@ -255,7 +266,7 @@
 
     function printTickets() {
       const output = document.getElementById('ticket-output');
-      output.innerHTML = ''; // Clear contents
+      output.innerHTML = ''; 
       
       const ticketImg = document.createElement('img');
       ticketImg.src = 'ticket.png';
