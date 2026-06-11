@@ -167,9 +167,9 @@
      <div id="ticket-chute-area" class="absolute z-10" style="top: 20px; left: 15px; width: 80px;">
       <div id="ticket-chute" class="relative z-10" style="width: 70px; height: 20px; background: #000; border: 3px solid #333; border-radius: 3px;">
        <div class="absolute inset-1 bg-gray-800 rounded-sm"></div>
-       <span class="absolute -top-5 right-0 text-green-300 animate-pulse" style="font-size:5px;">TICKETS</span>
+       <span class="absolute -top-5 left-1/2 -translate-x-1/2 text-green-300 animate-pulse whitespace-nowrap" style="font-size:5px;">TICKETS</span>
       </div>
-      <div id="ticket-output" class="absolute hide-scrollbar" style="top: 15px; left: 0; width: 70px; height: 500px; z-index: 5;"></div>
+      <div id="ticket-output" class="absolute hide-scrollbar" style="top: 15px; left: 0; width: 70px; height: 440px; z-index: 5; cursor: grab;"></div>
      </div>
      
      <div class="absolute bottom-0 left-0 right-0 h-12 z-40" style="background: linear-gradient(180deg, #0a1e3d, #061428); border-top: 3px solid #1e3a5f;"></div>
@@ -227,7 +227,6 @@
       });
     });
 
-    // Swish effect popups
     function triggerSwishText() {
       const container = document.getElementById('swish-container');
       const textEl = document.createElement('div');
@@ -301,20 +300,46 @@
       ticketImg.src = 'ticket.png';
       ticketImg.alt = 'Long Ticket';
       
+      // Increased height to 1000px so you have a long chain of tickets to scroll through
       ticketImg.style.cssText = `
         position: absolute;
         top: 0;
         left: 5px;
         width: 60px;
-        height: 550px; 
-        cursor: grab;
+        height: 1000px; 
         animation: rollDown 5.2s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+        user-select: none;
+        -webkit-user-drag: none;
       `;
       
-      ticketImg.addEventListener('mousedown', () => ticketImg.style.cursor = 'grabbing');
-      ticketImg.addEventListener('mouseup', () => ticketImg.style.cursor = 'grab');
-      
       output.appendChild(ticketImg);
+
+      // Setup high-performance click-and-drag desktop scrolling mechanics
+      let isDragging = false;
+      let startY;
+      let currentScrollTop;
+
+      output.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        output.style.cursor = 'grabbing';
+        startY = e.pageY - output.offsetTop;
+        currentScrollTop = output.scrollTop;
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          output.style.cursor = 'grab';
+        }
+      });
+
+      output.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const y = e.pageY - output.offsetTop;
+        const totalDelta = (y - startY) * 1.6; // Speed multiplier for tactile response
+        output.scrollTop = currentScrollTop - totalDelta;
+      });
     }
 
     lucide.createIcons();
