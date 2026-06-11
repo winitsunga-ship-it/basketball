@@ -300,13 +300,13 @@
       ticketImg.src = 'ticket.png';
       ticketImg.alt = 'Long Ticket';
       
-      // Increased height to 1000px so you have a long chain of tickets to scroll through
+      // Fixed: Height changed to auto so the source aspect ratio stays crisp and unwarped!
       ticketImg.style.cssText = `
         position: absolute;
         top: 0;
         left: 5px;
         width: 60px;
-        height: 1000px; 
+        height: auto; 
         animation: rollDown 5.2s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
         user-select: none;
         -webkit-user-drag: none;
@@ -314,7 +314,7 @@
       
       output.appendChild(ticketImg);
 
-      // Setup high-performance click-and-drag desktop scrolling mechanics
+      // Desktop dragging & pulling kinematics
       let isDragging = false;
       let startY;
       let currentScrollTop;
@@ -337,7 +337,7 @@
         if (!isDragging) return;
         e.preventDefault();
         const y = e.pageY - output.offsetTop;
-        const totalDelta = (y - startY) * 1.6; // Speed multiplier for tactile response
+        const totalDelta = (y - startY) * 1.6;
         output.scrollTop = currentScrollTop - totalDelta;
       });
     }
