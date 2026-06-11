@@ -1,124 +1,85 @@
 <!doctype html>
 <html class="h-full">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retro Arcade Basketball</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro Arcade Basketball</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      overflow: hidden;
-      background: #111827;
-      font-family: monospace;
-    }
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Press Start 2P', monospace;
+}
 
-    /* ================= CAMERA SYSTEM ================= */
+/* ✅ CAMERA LAYER */
+#camera {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform-origin: center;
+  will-change: transform;
+}
 
-    #camera {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      transform-origin: center;
-      will-change: transform;
-    }
+/* ORIGINAL BOOTH */
+.booth-container {
+  transition: none !important; /* IMPORTANT: camera handles movement now */
+  transform-origin: left bottom;
+}
 
-    /* ================= BOOTH ================= */
+/* BALLS */
+.ball {
+  cursor: pointer;
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493);
+  border: 2px solid #cc0066;
+  z-index: 10;
+}
 
-    .booth {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 380px;
-      height: 580px;
-    }
+/* CONFETTI */
+.confetti {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  animation: fall 2s linear forwards;
+}
 
-    .frame {
-      width: 100%;
-      height: 100%;
-      border: 6px solid #1e3a5f;
-      background: linear-gradient(180deg, #0a2a4a, #0d3b6b, #1a4f8a);
-      position: relative;
-    }
+@keyframes fall {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(600px); opacity: 0; }
+}
 
-    /* BALLS */
-    .ball {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      position: absolute;
-      bottom: 140px;
-      cursor: pointer;
-      z-index: 10;
-      background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493);
-      border: 2px solid #cc0066;
-    }
+/* SHAKE */
+.shake {
+  animation: shake 0.3s;
+}
 
-    /* NET */
-    #net {
-      position: absolute;
-      width: 60px;
-      height: 8px;
-      background: #ff4500;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    /* CHUTE */
-    #ticket-chute-area {
-      position: absolute;
-      bottom: 10px;
-      left: 18px;
-      width: 80px;
-    }
-
-    #ticket-chute {
-      width: 70px;
-      height: 20px;
-      background: black;
-      border: 3px solid #333;
-    }
-
-    /* LIGHT SHAKE */
-    .shake {
-      animation: shake 0.25s;
-    }
-
-    @keyframes shake {
-      0% { transform: translate(0,0); }
-      25% { transform: translate(2px,-2px); }
-      50% { transform: translate(-2px,2px); }
-      75% { transform: translate(2px,2px); }
-      100% { transform: translate(0,0); }
-    }
-
-    /* CONFETTI */
-    .confetti {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      animation: fall 2s linear forwards;
-    }
-
-    @keyframes fall {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(600px); opacity: 0; }
-    }
-  </style>
+@keyframes shake {
+  0% { transform: translate(0,0); }
+  25% { transform: translate(2px,-2px); }
+  50% { transform: translate(-2px,2px); }
+  75% { transform: translate(2px,2px); }
+  100% { transform: translate(0,0); }
+}
+</style>
 </head>
 
 <body>
 
-<!-- CAMERA LAYER -->
+<!-- 🎥 CAMERA -->
 <div id="camera">
 
-  <div class="booth">
-    <div class="frame" id="boothFrame">
+  <!-- BOOTH (UNCHANGED STRUCTURE) -->
+  <div id="booth" class="booth-container relative" style="width:380px;height:580px;margin:auto;top:50px;">
+
+    <div style="position:absolute; inset:0; background:linear-gradient(180deg,#0a2a4a,#0d3b6b,#1a4f8a); border:6px solid #1e3a5f;">
 
       <!-- SCORE -->
       <div style="position:absolute;top:60px;left:50%;transform:translateX(-50%);color:#00ff88;">
@@ -126,75 +87,54 @@
       </div>
 
       <!-- HOOP -->
-      <div style="position:absolute;top:90px;left:50%;transform:translateX(-50%);">
-        <div style="width:100px;height:70px;border:3px solid white;position:relative;">
-          <div id="net"></div>
-        </div>
+      <div style="position:absolute;top:100px;left:50%;transform:translateX(-50%);width:100px;height:70px;border:3px solid white;">
+        <div id="net" style="position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:8px;background:#ff4500;"></div>
       </div>
 
       <!-- BALLS -->
-      <div class="ball" style="left:60px;"></div>
-      <div class="ball" style="left:160px;"></div>
-      <div class="ball" style="left:260px;"></div>
+      <div class="ball" style="left:60px;bottom:140px;"></div>
+      <div class="ball" style="left:160px;bottom:140px;"></div>
+      <div class="ball" style="left:260px;bottom:140px;"></div>
 
-      <!-- CHUTE -->
-      <div id="ticket-chute-area">
-        <div id="ticket-chute"></div>
+      <!-- 🎟️ CHUTE -->
+      <div id="ticket-chute-area" style="position:absolute;bottom:10px;left:18px;width:80px;">
+        <div id="ticket-chute" style="width:70px;height:20px;background:#000;border:3px solid #333;"></div>
       </div>
 
     </div>
   </div>
-
 </div>
 
 <script>
-/* ================= GAME STATE ================= */
-let score = 0;
-let shots = 0;
 
-/* ================= CAMERA STATE ================= */
+/* ================= CAMERA SYSTEM ================= */
+
 const camera = document.getElementById("camera");
 
-const target = {
-  x: 0,
-  y: 0,
-  scale: 1
-};
+let cam = { x: 0, y: 0, s: 1 };
+let target = { x: 0, y: 0, s: 1 };
 
-const current = {
-  x: 0,
-  y: 0,
-  scale: 1
-};
-
-/* CHUTE FOCUS POINT (normalized screen space) */
-const focusChute = {
-  x: -120,   // pushes camera right view so chute is visible
-  y: 140,
-  scale: 3.2
-};
-
-let focusMode = false;
-
-/* ================= CAMERA LOOP (SMOOTH) ================= */
 function updateCamera() {
-  current.x += (target.x - current.x) * 0.08;
-  current.y += (target.y - current.y) * 0.08;
-  current.scale += (target.scale - current.scale) * 0.08;
+  cam.x += (target.x - cam.x) * 0.08;
+  cam.y += (target.y - cam.y) * 0.08;
+  cam.s += (target.s - cam.s) * 0.08;
 
   camera.style.transform =
-    `translate(${current.x}px, ${current.y}px) scale(${current.scale})`;
+    `translate(${cam.x}px, ${cam.y}px) scale(${cam.s})`;
 
   requestAnimationFrame(updateCamera);
 }
 updateCamera();
 
-/* ================= BALL SHOOT ================= */
+/* ================= GAME ================= */
+
+let score = 0;
+let shots = 0;
+
 document.querySelectorAll(".ball").forEach(ball => {
   ball.addEventListener("click", () => {
     if (ball.dataset.shot) return;
     ball.dataset.shot = "true";
-
     shoot(ball);
   });
 });
@@ -202,8 +142,7 @@ document.querySelectorAll(".ball").forEach(ball => {
 function shoot(ball) {
   ball.style.opacity = 0;
 
-  const made = Math.random() > 0.2;
-  if (made) {
+  if (Math.random() > 0.2) {
     score++;
     document.getElementById("score").textContent = score;
   }
@@ -211,35 +150,37 @@ function shoot(ball) {
   shots++;
 
   if (shots === 3) {
-    setTimeout(endGame, 500);
+    setTimeout(endGame, 600);
   }
 }
 
 /* ================= END GAME ================= */
+
 function endGame() {
   if (score === 3) {
-    focusMode = true;
-    focusChuteCamera();
+    focusChute();
     launchConfetti();
   }
 }
 
-/* ================= CAMERA FOCUS ================= */
-function focusChuteCamera() {
-  target.x = focusChute.x;
-  target.y = focusChute.y;
-  target.scale = focusChute.scale;
+/* ================= 🎥 CAMERA FOCUS (FIXED) ================= */
 
-  // shake after lock-in
+function focusChute() {
+
+  document.getElementById("booth").classList.add("shake");
+
+  // 🎯 REAL CHUTE-FRAMING CAMERA POSITION
+  target.x = 130;   // push right so chute appears centered in view
+  target.y = -90;   // lift for breathing space above chute
+  target.s = 3.2;   // zoom
+
   setTimeout(() => {
-    document.getElementById("boothFrame").classList.add("shake");
-    setTimeout(() => {
-      document.getElementById("boothFrame").classList.remove("shake");
-    }, 300);
-  }, 800);
+    document.getElementById("booth").classList.remove("shake");
+  }, 300);
 }
 
 /* ================= CONFETTI ================= */
+
 function launchConfetti() {
   for (let i = 0; i < 60; i++) {
     const c = document.createElement("div");
@@ -249,6 +190,7 @@ function launchConfetti() {
     document.body.appendChild(c);
   }
 }
+
 </script>
 
 </body>
