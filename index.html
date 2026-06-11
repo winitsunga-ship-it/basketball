@@ -8,10 +8,17 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playball&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
-    * { font-family: 'Press Start 2P', monospace; }
+    
+    /* Default game elements use arcade font */
+    .arcade-font, .arcade-font * { font-family: 'Press Start 2P', monospace; }
+    
+    /* Dedicated cursive styling for your aesthetic letter */
+    .cursive-text {
+      font-family: 'Playball', cursive;
+    }
     
     .booth-container {
       transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -33,7 +40,6 @@
       100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
     }
     
-    /* Smooth natural extrusion from the chute container */
     @keyframes rollDown {
       0% { transform: translateY(-100%); }
       100% { transform: translateY(0); }
@@ -101,12 +107,33 @@
       30% { transform: translate(-50%, -20px) scale(1.1); opacity: 1; }
       100% { transform: translate(-50%, -35px) scale(1); opacity: 0; }
     }
+
+    /* Elegant vintage fading layout for the romantic message container */
+    #love-note-container {
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+    
+    .typewriter-cursor::after {
+      content: '|';
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
   </style>
   <style>body { box-sizing: border-box; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
  </head>
- <body class="h-full bg-gray-900 flex items-center justify-center overflow-hidden">
+ <body class="h-full bg-gray-900 flex items-center justify-center overflow-hidden arcade-font">
   <div id="game-wrapper" class="relative w-full h-full flex items-center justify-center">
+   
+   <div id="love-note-container" class="absolute left-[8%] top-[25%] w-[320px] max-w-[28vw] pointer-events-none z-50 text-left">
+     <div id="note-line1" class="cursive-text text-pink-300 text-3xl md:text-4xl leading-relaxed tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"></div>
+     <div id="note-line2" class="cursive-text text-pink-400 text-2xl md:text-3xl mt-4 pl-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"></div>
+   </div>
+
    <div id="confetti-container" class="absolute inset-0 pointer-events-none z-50"></div>
    
    <div id="booth" class="booth-container relative" style="width: 380px; height: 580px;">
@@ -288,6 +315,44 @@
       }, 1800);
     }
 
+    // Dynamic procedural typist layout to sync elegantly with the 15-second roll
+    function typeWriterEffect(text1, text2) {
+      const container = document.getElementById('love-note-container');
+      const line1El = document.getElementById('note-line1');
+      const line2El = document.getElementById('note-line2');
+      
+      container.style.opacity = '1';
+      line1El.classList.add('typewriter-cursor');
+      
+      let i = 0;
+      let j = 0;
+      
+      // Steady pacing to look natural and match the speed of the rising image strip
+      function typeLine1() {
+        if (i < text1.length) {
+          line1El.textContent += text1.charAt(i);
+          i++;
+          setTimeout(typeLine1, 110);
+        } else {
+          line1El.classList.remove('typewriter-cursor');
+          line2El.classList.add('typewriter-cursor');
+          setTimeout(typeLine2, 600);
+        }
+      }
+      
+      function typeLine2() {
+        if (j < text2.length) {
+          line2El.textContent += text2.charAt(j);
+          j++;
+          setTimeout(typeLine2, 100);
+        } else {
+          // Keep the flashing active on the signature line for aesthetic points
+        }
+      }
+      
+      typeLine1();
+    }
+
     function printTickets() {
       const output = document.getElementById('ticket-output');
       output.innerHTML = ''; 
@@ -309,6 +374,14 @@
       `;
       
       output.appendChild(ticketImg);
+
+      // Triggers the aesthetic cursive typewriter exactly as the ticket motor activates
+      setTimeout(() => {
+        typeWriterEffect(
+          "Happy 5th monthsary, Yayang!!", 
+          "-yours only, wywyn"
+        );
+      }, 200);
 
       let isDragging = false;
       let startY = 0;
