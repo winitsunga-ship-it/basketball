@@ -1,6 +1,7 @@
 <!doctype html>
 <html class="h-full">
- <head><script src="/_sdk/telemetry_sdk.js"></script>
+ <head>
+  <script src="/_sdk/telemetry_sdk.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retro Arcade Basketball</title>
@@ -32,16 +33,9 @@
       100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
     }
     
-    .ticket {
-      animation: ticketRoll 2s ease-out forwards;
-      transform-origin: top center;
-    }
-    @keyframes ticketRoll {
+    /* Replaced ticket roll animation with a smooth image slide-out */
+    @keyframes rollDown {
       0% { transform: translateY(-100%); }
-      60% { transform: translateY(0); }
-      70% { transform: translateY(-8px); }
-      80% { transform: translateY(0); }
-      90% { transform: translateY(-3px); }
       100% { transform: translateY(0); }
     }
     
@@ -96,199 +90,25 @@
  </head>
  <body class="h-full bg-gray-900 flex items-center justify-center overflow-hidden">
   <div id="game-wrapper" class="relative w-full h-full flex items-center justify-center">
-   <!-- Confetti container -->
-   <div id="confetti-container" class="absolute inset-0 pointer-events-none z-50"></div><!-- Booth -->
+   <div id="confetti-container" class="absolute inset-0 pointer-events-none z-50"></div>
+   
    <div id="booth" class="booth-container relative" style="width: 380px; height: 580px;">
-    <!-- Booth frame -->
     <div class="absolute inset-0 rounded-lg" style="background: linear-gradient(180deg, #0a2a4a 0%, #0d3b6b 40%, #1a4f8a 100%); border: 6px solid #1e3a5f;">
-     <!-- Top marquee -->
+     
      <div class="absolute top-0 left-0 right-0 h-14 flex items-center justify-center" style="background: linear-gradient(180deg, #ff69b4, #ff1493); border-bottom: 4px solid #1e3a5f;">
       <span id="title-text" class="text-white text-xs tracking-wide" style="text-shadow: 2px 2px #000;">ARCADE HOOPS</span>
-     </div><!-- Score display -->
+     </div>
+     
      <div class="absolute top-16 left-1/2 -translate-x-1/2 bg-black px-4 py-2 pixel-border">
       <span class="text-green-400 text-xs">SCORE: <span id="score">0</span>/3</span>
-     </div><!-- Backboard & Hoop area -->
+     </div>
+     
      <div class="absolute" style="top: 90px; left: 50%; transform: translateX(-50%);">
-      <!-- Backboard -->
       <div class="relative" style="width: 100px; height: 70px; background: rgba(255,255,255,0.15); border: 3px solid #fff; border-radius: 4px;">
-       <!-- Rim -->
        <div id="hoop" class="absolute" style="bottom: -8px; left: 50%; transform: translateX(-50%); width: 60px; height: 8px; background: #ff4500; border-radius: 0 0 4px 4px; border: 2px solid #cc3700;">
-       </div><!-- Net -->
+       </div>
        <div id="net" class="absolute" style="bottom: -35px; left: 50%; transform: translateX(-50%); width: 50px; height: 30px;">
         <svg width="50" height="30" viewbox="0 0 50 30">
          <path d="M5 0 L10 10 L5 20 L10 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M15 0 L20 10 L15 20 L20 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M25 0 L30 10 L25 20 L30 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M35 0 L40 10 L35 20 L40 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M45 0 L40 10 L45 20 L40 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" />
         </svg>
        </div>
-      </div>
-     </div><!-- Side lights -->
-     <div class="absolute left-2 top-20 flex flex-col gap-3">
-      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse"></div>
-      <div class="w-3 h-3 rounded-full bg-pink-400 animate-pulse" style="animation-delay:0.3s"></div>
-      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse" style="animation-delay:0.6s"></div>
-     </div>
-     <div class="absolute right-2 top-20 flex flex-col gap-3">
-      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse"></div>
-      <div class="w-3 h-3 rounded-full bg-pink-400 animate-pulse" style="animation-delay:0.3s"></div>
-      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse" style="animation-delay:0.6s"></div>
-     </div><!-- Ball area -->
-     <div id="ball-area" class="absolute" style="bottom: 100px; left: 0; right: 0; height: 160px;">
-      <!-- Aim line SVG -->
-      <svg id="aim-svg" class="absolute inset-0 w-full h-full pointer-events-none" style="overflow:visible; z-index:10;">
-       <line id="aim-line" class="aim-line" x1="0" y1="0" x2="0" y2="0" stroke="#ff69b4" stroke-width="2" opacity="0" />
-      </svg><!-- Balls -->
-      <div id="ball-0" class="ball absolute rounded-full" style="width: 36px; height: 36px; background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493); border: 2px solid #cc0066; bottom: 20px; left: 60px; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3);">
-       <div style="position:absolute; top:30%; left:20%; width:60%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(-20deg)"></div>
-       <div style="position:absolute; top:50%; left:15%; width:70%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(10deg)"></div>
-      </div>
-      <div id="ball-1" class="ball absolute rounded-full" style="width: 36px; height: 36px; background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493); border: 2px solid #cc0066; bottom: 20px; left: 160px; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3);">
-       <div style="position:absolute; top:30%; left:20%; width:60%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(-20deg)"></div>
-       <div style="position:absolute; top:50%; left:15%; width:70%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(10deg)"></div>
-      </div>
-      <div id="ball-2" class="ball absolute rounded-full" style="width: 36px; height: 36px; background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493); border: 2px solid #cc0066; bottom: 20px; left: 270px; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3);">
-       <div style="position:absolute; top:30%; left:20%; width:60%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(-20deg)"></div>
-       <div style="position:absolute; top:50%; left:15%; width:70%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(10deg)"></div>
-      </div>
-     </div><!-- Ticket chute area (bottom left) -->
-     <div id="ticket-chute-area" class="absolute" style="top: 20px; left: 15px; width: 80px;">
-      <!-- Chute slot -->
-      <div id="ticket-chute" class="relative" style="width: 70px; height: 20px; background: #000; border: 3px solid #333; border-radius: 3px;">
-       <div class="absolute inset-1 bg-gray-800 rounded-sm"></div><span class="absolute -top-6 left-0 text-green-300" style="font-size:5px;">TICKETS</span>
-      </div><!-- Ticket output area with extra space below -->
-      <div id="ticket-output" class="relative" style="width: 70px; min-height: 150px; margin-top: 8px;"></div>
-     </div><!-- Bottom platform -->
-     <div class="absolute bottom-0 left-0 right-0 h-12" style="background: linear-gradient(180deg, #0a1e3d, #061428); border-top: 3px solid #1e3a5f;"></div>
-    </div>
-   </div><!-- Instructions -->
-   <div id="instructions" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-80 px-4 py-2 rounded">
-    <p class="text-pink-300 text-xs text-center" style="font-size:8px;">CLICK BALLS TO SHOOT!</p>
-   </div>
-  </div>
-  <script>
-    // Config & SDK init
-    const defaultConfig = {
-      game_title: 'ARCADE HOOPS',
-      background_color: '#111827',
-      booth_color: '#0d3b6b',
-      accent_color: '#ff1493',
-      text_color: '#ffffff',
-      chute_color: '#22c55e'
-    };
-
-    window.elementSdk.init({
-      defaultConfig,
-      onConfigChange: async (config) => {
-        document.getElementById('title-text').textContent = config.game_title || defaultConfig.game_title;
-        document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
-      },
-      mapToCapabilities: (config) => ({
-        recolorables: [
-          { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
-          { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
-          { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
-          { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
-          { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
-        ],
-        borderables: [],
-        fontEditable: undefined,
-        fontSizeable: undefined
-      }),
-      mapToEditPanelValues: (config) => new Map([
-        ['game_title', config.game_title || defaultConfig.game_title]
-      ])
-    });
-
-    // Game logic
-    let score = 0;
-    let ballsShot = 0;
-    const booth = document.getElementById('booth');
-
-    document.querySelectorAll('.ball').forEach((ball, i) => {
-      ball.addEventListener('click', (e) => {
-        if (ball.dataset.shot === 'true') return;
-        shootBall(ball);
-      });
-    });
-
-    function shootBall(ball) {
-      ball.dataset.shot = 'true';
-      ball.style.cursor = 'default';
-      ball.classList.add('ball-flying');
-      
-      setTimeout(() => {
-        score++;
-        document.getElementById('score').textContent = score;
-        document.getElementById('net').classList.add('net-swish');
-        setTimeout(() => document.getElementById('net').classList.remove('net-swish'), 400);
-        ball.style.opacity = '0';
-        ballsShot++;
-        checkGameEnd();
-      }, 800);
-    }
-
-    function checkGameEnd() {
-      if (ballsShot >= 3) {
-        setTimeout(() => {
-          if (score > 0) {
-            launchConfetti();
-            setTimeout(() => zoomToChute(), 1500);
-          } else {
-            // Show "try again" message
-            document.getElementById('instructions').innerHTML = '<p class="text-pink-300" style="font-size:8px;">NO SCORE! TAP TO RETRY</p>';
-            document.getElementById('instructions').onclick = () => location.reload();
-          }
-        }, 400);
-      }
-    }
-
-    function launchConfetti() {
-      const container = document.getElementById('confetti-container');
-      const colors = ['#ff1493', '#00bfff', '#ffd700', '#00ff88', '#ff6b6b', '#a855f7'];
-      for (let i = 0; i < 80; i++) {
-        const piece = document.createElement('div');
-        piece.className = 'confetti-piece';
-        piece.style.left = Math.random() * 100 + '%';
-        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-        piece.style.animationDelay = Math.random() * 1 + 's';
-        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-        piece.style.width = (4 + Math.random() * 8) + 'px';
-        piece.style.height = (4 + Math.random() * 8) + 'px';
-        container.appendChild(piece);
-      }
-    }
-
-    function zoomToChute() {
-      document.getElementById('instructions').style.display = 'none';
-      booth.classList.add('booth-zoomed');
-      
-      setTimeout(() => {
-        printTickets();
-      }, 1800);
-    }
-
-    function printTickets() {
-      const output = document.getElementById('ticket-output');
-      const ticketCount = score;
-      
-      for (let i = 0; i < ticketCount; i++) {
-        setTimeout(() => {
-          const ticket = document.createElement('div');
-          ticket.className = 'ticket';
-          ticket.style.cssText = `
-            width: 60px; height: 28px; margin-top: 2px;
-            background: linear-gradient(90deg, #fffbe6, #fff3b0);
-            border: 1px dashed #b8860b;
-            border-radius: 2px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 4px; color: #8b4513;
-            box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-          `;
-          ticket.innerHTML = '⭐ TICKET ⭐';
-          output.appendChild(ticket);
-        }, i * 600);
-      }
-    }
-
-    lucide.createIcons();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0a041c09dbfe2e1',t:'MTc4MTE3NzE0NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-</html>
