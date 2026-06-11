@@ -34,17 +34,12 @@
     }
     
     @keyframes rollDown {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(0); }
+      0% { top: -400px; }
+      100% { top: 0px; }
     }
 
     .hide-scrollbar {
-      overflow-y: scroll;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
+      overflow: hidden;
     }
     
     .ball {
@@ -191,6 +186,7 @@
       chute_color: '#22c55e'
     };
 
+    // Safely isolated initialization to protect environment workflow stability if dependencies fail to register
     if (window.elementSdk && window.elementSdk.init) {
       window.elementSdk.init({
         defaultConfig,
@@ -298,12 +294,11 @@
       
       const ticketImg = document.createElement('img');
       ticketImg.src = 'ticket.png';
-      ticketImg.alt = 'Long Ticket';
+      ticketImg.alt = 'Ticket';
       
-      // Fixed: Height changed to auto so the source aspect ratio stays crisp and unwarped!
       ticketImg.style.cssText = `
         position: absolute;
-        top: 0;
+        top: -400px;
         left: 5px;
         width: 60px;
         height: auto; 
@@ -314,31 +309,47 @@
       
       output.appendChild(ticketImg);
 
-      // Desktop dragging & pulling kinematics
+      // Fully unrestricted direct coordinates translation framework 
       let isDragging = false;
-      let startY;
-      let currentScrollTop;
+      let startY = 0;
+      let currentY = 0;
 
-      output.addEventListener('mousedown', (e) => {
+      ticketImg.addEventListener('mousedown', (e) => {
         isDragging = true;
-        output.style.cursor = 'grabbing';
-        startY = e.pageY - output.offsetTop;
-        currentScrollTop = output.scrollTop;
+        ticketImg.style.animation = 'none'; // Unlocks keyframe clamping instantly
+        ticketImg.style.cursor = 'grabbing';
+        startY = e.pageY - currentY;
+        e.preventDefault();
       });
 
       window.addEventListener('mouseup', () => {
         if (isDragging) {
           isDragging = false;
-          output.style.cursor = 'grab';
+          ticketImg.style.cursor = 'grab';
         }
       });
 
-      output.addEventListener('mousemove', (e) => {
+      window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
+        currentY = e.pageY - startY;
+        
+        // Boundaries built to let the asset slide up/down past its exact pixel footprint safely
+        if (currentY < -550) currentY = -550;
+        if (currentY > 400) currentY = 400;
+        
+        ticketImg.style.transform = `translateY(${currentY}px)`;
+      });
+
+      // Mouse Wheel Support 
+      output.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const y = e.pageY - output.offsetTop;
-        const totalDelta = (y - startY) * 1.6;
-        output.scrollTop = currentScrollTop - totalDelta;
+        ticketImg.style.animation = 'none';
+        currentY -= e.deltaY * 0.7;
+        
+        if (currentY < -550) currentY = -550;
+        if (currentY > 400) currentY = 400;
+        
+        ticketImg.style.transform = `translateY(${currentY}px)`;
       });
     }
 
