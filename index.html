@@ -3,45 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Arcade Hoops</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playball&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
-    body { background: #0f172a; font-family: 'Press Start 2P', monospace; }
+    .arcade-font { font-family: 'Press Start 2P', monospace; }
+    .cursive-text { font-family: 'Playball', cursive; }
     .booth { transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: top left; }
     .zoomed { transform: scale(3.2) translate(35px, 20px); }
-    .ball { cursor: pointer; transition: transform 0.2s; }
-    .ball:hover { transform: scale(1.1); }
-    .cursive { font-family: 'Playball', cursive; }
+    .ball { cursor: grab; transition: transform 0.1s; }
+    #note { opacity: 0; transition: opacity 1.5s ease-in-out; }
   </style>
 </head>
-<body class="flex items-center justify-center h-screen overflow-hidden">
-
+<body class="bg-slate-900 flex items-center justify-center h-screen arcade-font">
   <audio id="bg-music" src="game-music.mp3" loop></audio>
   <audio id="zoom-music" src="zoom-music.mp3" loop></audio>
   <audio id="win-sound" src="winner.mp3"></audio>
 
-  <div id="booth" class="booth relative w-[380px] h-[580px] bg-blue-900 border-[6px] border-blue-950 rounded-lg shadow-2xl">
-    <div class="h-14 bg-pink-500 border-b-4 border-blue-950 flex items-center justify-center text-white text-xs">ARCADE HOOPS</div>
-    <div class="mt-10 text-center text-green-400 text-sm">SCORE: <span id="score">0</span>/3</div>
-    
+  <div id="booth" class="booth relative w-[380px] h-[580px] bg-blue-950 border-[6px] border-blue-900 rounded-lg">
+    <div class="h-14 bg-pink-600 border-b-4 border-blue-900 flex items-center justify-center text-white text-xs">ARCADE HOOPS</div>
+    <div class="text-green-400 text-center mt-4">SCORE: <span id="score">0</span>/3</div>
     <div id="ball-container" class="absolute bottom-20 w-full flex justify-around px-10">
-      <div class="ball w-12 h-12 bg-pink-600 rounded-full border-4 border-pink-800" onclick="shoot(this)"></div>
-      <div class="ball w-12 h-12 bg-pink-600 rounded-full border-4 border-pink-800" onclick="shoot(this)"></div>
-      <div class="ball w-12 h-12 bg-pink-600 rounded-full border-4 border-pink-800" onclick="shoot(this)"></div>
+      <div class="ball w-10 h-10 bg-pink-500 rounded-full border-4 border-pink-700" onclick="shoot(this)"></div>
+      <div class="ball w-10 h-10 bg-pink-500 rounded-full border-4 border-pink-700" onclick="shoot(this)"></div>
+      <div class="ball w-10 h-10 bg-pink-500 rounded-full border-4 border-pink-700" onclick="shoot(this)"></div>
     </div>
   </div>
 
-  <div id="note" class="absolute left-10 top-1/4 opacity-0 transition-opacity duration-1000 p-6 bg-slate-900/80 border border-pink-500 rounded-2xl text-pink-300 cursive text-3xl">
+  <div id="note" class="absolute left-10 top-1/4 p-6 bg-slate-950/80 border border-pink-500 rounded-2xl text-pink-300 cursive text-3xl">
     Happy 5th monthsary, Yayang!!
   </div>
 
   <script>
     let score = 0;
-    
-    // Auto-play audio on first click
     window.addEventListener('click', () => {
       const bg = document.getElementById('bg-music');
-      bg.volume = 0.5;
+      bg.volume = 0.5; // Set to 50%
       bg.play().catch(()=>{});
     }, {once: true});
 
@@ -49,20 +45,14 @@
       el.style.visibility = 'hidden';
       score++;
       document.getElementById('score').innerText = score;
-      
       if(score === 3) {
         document.getElementById('bg-music').pause();
         document.getElementById('win-sound').play();
-        
         setTimeout(() => {
           document.getElementById('booth').classList.add('zoomed');
           const zm = document.getElementById('zoom-music');
           zm.volume = 0; zm.play();
-          // Fade in music
-          let fade = setInterval(() => {
-            if(zm.volume < 0.5) zm.volume += 0.05;
-            else clearInterval(fade);
-          }, 200);
+          let fade = setInterval(() => { if(zm.volume < 0.5) zm.volume += 0.05; else clearInterval(fade); }, 200);
           document.getElementById('note').style.opacity = '1';
         }, 1500);
       }
