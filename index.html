@@ -197,10 +197,10 @@
         mapToCapabilities: (config) => ({
           recolorables: [
             { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
-            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color = v }); }},
-            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color = v }); }},
-            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color = v }); }},
-            { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color = v }); }}
+            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
+            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
+            { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
           ],
           borderables: [],
           fontEditable: undefined,
@@ -296,7 +296,6 @@
       ticketImg.src = 'ticket.png';
       ticketImg.alt = 'Ticket';
       
-      // Changed to a smooth 15-second motorized linear crawl out from the slot
       ticketImg.style.cssText = `
         position: absolute;
         top: 0;
@@ -318,7 +317,6 @@
       ticketImg.addEventListener('mousedown', (e) => {
         isDragging = true;
         
-        // Dynamically extract precisely where the image is along its timeline to avoid jumps
         const style = window.getComputedStyle(ticketImg);
         const matrix = new DOMMatrix(style.transform);
         currentY = matrix.f;
@@ -341,14 +339,12 @@
         if (!isDragging) return;
         currentY = e.pageY - startY;
         
-        // Boundaries perfectly sized for infinite desktop pulling range
         if (currentY < -600) currentY = -600;
         if (currentY > 450) currentY = 450;
         
         ticketImg.style.transform = `translateY(${currentY}px)`;
       });
 
-      // Mouse Wheel Support seamlessly stops the automation timeline on scroll wheel touch
       output.addEventListener('wheel', (e) => {
         e.preventDefault();
         if (ticketImg.style.animation !== 'none') {
