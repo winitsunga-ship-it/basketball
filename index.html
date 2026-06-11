@@ -52,32 +52,32 @@
         0 -4px 0 0 #1e3a5f;
     }
 
-    /* Dedicated arc animations for each ball to hit the center hoop perfectly */
+    /* Dedicated arc animations with added 360-degree ball rotation */
     .ball-0-flying {
       animation: arcBall0 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
     }
     @keyframes arcBall0 {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      50% { transform: translate(56px, -320px) scale(0.7); opacity: 1; }
-      100% { transform: translate(112px, -275px) scale(0.4); opacity: 0; }
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: translate(56px, -320px) scale(0.7) rotate(180deg); opacity: 1; }
+      100% { transform: translate(112px, -275px) scale(0.4) rotate(360deg); opacity: 0; }
     }
 
     .ball-1-flying {
       animation: arcBall1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
     }
     @keyframes arcBall1 {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      50% { transform: translate(6px, -320px) scale(0.7); opacity: 1; }
-      100% { transform: translate(12px, -275px) scale(0.4); opacity: 0; }
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: translate(6px, -320px) scale(0.7) rotate(-180deg); opacity: 1; }
+      100% { transform: translate(12px, -275px) scale(0.4) rotate(-360deg); opacity: 0; }
     }
 
     .ball-2-flying {
       animation: arcBall2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
     }
     @keyframes arcBall2 {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      50% { transform: translate(-49px, -320px) scale(0.7); opacity: 1; }
-      100% { transform: translate(-98px, -275px) scale(0.4); opacity: 0; }
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: translate(-49px, -320px) scale(0.7) rotate(180deg); opacity: 1; }
+      100% { transform: translate(-98px, -275px) scale(0.4) rotate(360deg); opacity: 0; }
     }
 
     .net-swish {
@@ -87,6 +87,16 @@
       0% { transform: scaleY(1); }
       50% { transform: scaleY(1.3); }
       100% { transform: scaleY(1); }
+    }
+
+    /* Swish Text Juice */
+    .swish-popup {
+      animation: swishUp 0.6s ease-out forwards;
+    }
+    @keyframes swishUp {
+      0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+      30% { transform: translate(-50%, -20px) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -35px) scale(1); opacity: 0; }
     }
   </style>
   <style>body { box-sizing: border-box; }</style>
@@ -108,6 +118,8 @@
      </div>
      
      <div class="absolute" style="top: 90px; left: 50%; transform: translateX(-50%); z-index: 20;">
+      <div id="swish-container" class="absolute left-1/2 top-[-15px] pointer-events-none z-50 whitespace-nowrap"></div>
+
       <div class="relative" style="width: 100px; height: 70px; background: rgba(255,255,255,0.15); border: 3px solid #fff; border-radius: 4px;">
        <div id="hoop" class="absolute" style="bottom: -8px; left: 50%; transform: translateX(-50%); width: 60px; height: 8px; background: #ff4500; border-radius: 0 0 4px 4px; border: 2px solid #cc3700;">
        </div>
@@ -172,7 +184,6 @@
       chute_color: '#22c55e'
     };
 
-    // Safely wrap SDK initialization to avoid breaking standalone page views
     if (window.elementSdk && window.elementSdk.init) {
       window.elementSdk.init({
         defaultConfig,
@@ -196,8 +207,6 @@
           ['game_title', config.game_title || defaultConfig.game_title]
         ])
       });
-    } else {
-      console.warn("Element SDK missing or failed to load. Running in standalone preview.");
     }
 
     // Game logic
@@ -212,17 +221,36 @@
       });
     });
 
+    function triggerSwishText() {
+      const container = document.getElementById('swish-container');
+      const textEl = document.createElement('div');
+      textEl.className = 'absolute text-yellow-400 font-bold swish-popup';
+      textEl.style.fontSize = '9px';
+      textEl.style.textShadow = '2px 2px #000';
+      textEl.textContent = 'SWISH!';
+      
+      container.appendChild(textEl);
+      setTimeout(() => textEl.remove(), 600);
+    }
+
     function shootBall(ball, index) {
       ball.dataset.shot = 'true';
       ball.style.cursor = 'default';
       
-      // Assign the specific keyframe animation class based on which ball index was clicked
+      // Clear standard box shadow to make the ball feel like it's high in the air
+      ball.style.boxShadow = 'none';
+      
+      // Assign the spinning arc animation
       ball.classList.add(`ball-${index}-flying`);
       
       setTimeout(() => {
         score++;
         document.getElementById('score').textContent = score;
+        
+        // Visual net & text feedback
         document.getElementById('net').classList.add('net-swish');
+        triggerSwishText();
+        
         setTimeout(() => document.getElementById('net').classList.remove('net-swish'), 400);
         ball.style.opacity = '0';
         ballsShot++;
