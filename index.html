@@ -52,6 +52,8 @@
     .ball {
       cursor: pointer;
       transition: transform 0.1s;
+      z-index: 10;
+      position: absolute;
     }
 
     .ball-flying {
@@ -96,27 +98,32 @@
       style="background: linear-gradient(180deg, #0a2a4a 0%, #0d3b6b 40%, #1a4f8a 100%);
       border: 6px solid #1e3a5f;">
 
-      <!-- Top marquee -->
+      <!-- TOP MARQUEE -->
       <div class="absolute top-0 left-0 right-0 h-14 flex items-center justify-center"
         style="background: linear-gradient(180deg, #ff69b4, #ff1493);
         border-bottom: 4px solid #1e3a5f;">
-        <span id="title-text" class="text-white text-xs tracking-wide">ARCADE HOOPS</span>
+        <span id="title-text" class="text-white text-xs tracking-wide">
+          ARCADE HOOPS
+        </span>
       </div>
 
       <!-- SCORE -->
       <div class="absolute top-16 left-1/2 -translate-x-1/2 bg-black px-4 py-2 pixel-border">
-        <span class="text-green-400 text-xs">SCORE: <span id="score">0</span>/3</span>
+        <span class="text-green-400 text-xs">
+          SCORE: <span id="score">0</span>/3
+        </span>
       </div>
 
       <!-- HOOP -->
       <div class="absolute" style="top: 90px; left: 50%; transform: translateX(-50%);">
-        <div style="width: 100px; height: 70px; background: rgba(255,255,255,0.15);
-          border: 3px solid #fff; border-radius: 4px; position: relative;">
+        <div style="width:100px;height:70px;background:rgba(255,255,255,0.15);
+        border:3px solid #fff; position:relative;">
 
-          <div id="net" class="absolute"
-            style="bottom: -8px; left: 50%; transform: translateX(-50%);
-            width: 60px; height: 8px;
-            background: #ff4500; border: 2px solid #cc3700;">
+          <div id="net"
+            style="position:absolute; bottom:-8px; left:50%;
+            transform:translateX(-50%);
+            width:60px; height:8px;
+            background:#ff4500;">
           </div>
 
         </div>
@@ -135,35 +142,47 @@
         <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse"></div>
       </div>
 
-      <!-- BALL AREA -->
-      <div id="ball-area" class="absolute" style="bottom: 100px; left: 0; right: 0; height: 160px;">
+      <!-- BALL AREA (raised so nothing overlaps clicks) -->
+      <div id="ball-area"
+        class="absolute"
+        style="bottom: 140px; left: 0; right: 0; height: 160px; z-index: 10;">
 
-        <div id="ball-0" class="ball absolute rounded-full"
-          style="width:36px;height:36px;bottom:20px;left:60px;
+        <div id="ball-0" class="ball rounded-full"
+          style="width:36px;height:36px;left:60px;bottom:20px;
           background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493);
           border: 2px solid #cc0066;">
         </div>
 
-        <div id="ball-1" class="ball absolute rounded-full"
-          style="width:36px;height:36px;bottom:20px;left:160px;
+        <div id="ball-1" class="ball rounded-full"
+          style="width:36px;height:36px;left:160px;bottom:20px;
           background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493);
           border: 2px solid #cc0066;">
         </div>
 
-        <div id="ball-2" class="ball absolute rounded-full"
-          style="width:36px;height:36px;bottom:20px;left:270px;
+        <div id="ball-2" class="ball rounded-full"
+          style="width:36px;height:36px;left:270px;bottom:20px;
           background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493);
           border: 2px solid #cc0066;">
         </div>
 
       </div>
 
-      <!-- TICKET CHUTE -->
-      <div id="ticket-chute-area" style="bottom:18px;left:20px;width:80px;position:absolute;">
-        <div id="ticket-chute" style="width:70px;height:20px;background:#000;border:3px solid #333;">
-          <span class="absolute -top-6 left-0 text-green-300" style="font-size:5px;">TICKETS</span>
+      <!-- TICKET CHUTE (MOVED BELOW BALLS) -->
+      <div id="ticket-chute-area"
+        style="position:absolute; bottom:0; left:50%;
+        transform:translateX(-50%); width:80px; z-index:1;">
+
+        <div id="ticket-chute"
+          style="width:70px;height:20px;background:#000;border:3px solid #333;">
+          <span class="absolute -top-6 left-0 text-green-300" style="font-size:5px;">
+            TICKETS
+          </span>
         </div>
-        <div id="ticket-output" style="width:70px;min-height:150px;margin-top:8px;"></div>
+
+        <div id="ticket-output"
+          style="width:70px;min-height:120px;margin-top:8px;">
+        </div>
+
       </div>
 
     </div>
@@ -182,7 +201,7 @@ let score = 0;
 let ballsShot = 0;
 const booth = document.getElementById("booth");
 
-/* ONLY CHANGE: click to shoot */
+/* CLICK TO SHOOT */
 document.querySelectorAll(".ball").forEach(ball => {
   ball.addEventListener("click", () => {
     if (ball.dataset.shot === "true") return;
@@ -195,7 +214,7 @@ function shootBall(ball) {
   ball.classList.add("ball-flying");
 
   setTimeout(() => {
-    const madeShot = Math.random() > 0.2; // small realism tweak
+    const madeShot = Math.random() > 0.2;
 
     if (madeShot) {
       score++;
