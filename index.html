@@ -203,7 +203,7 @@ position:absolute;
     </div>
    </div><!-- Instructions -->
    <div id="instructions" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-80 px-4 py-2 rounded">
-    <p class="text-pink-300 text-xs text-center" style="font-size:8px;">CLICK BALLS TO SHOOT!</p>
+    <p class="text-pink-300 text-xs text-center" style="font-size:8px;">DRAG UP TO SHOOT!</p>
    </div>
   </div>
   <script>
@@ -321,18 +321,26 @@ if(madeShot){
       }, 800);
     }
 
-    function checkGameEnd() {
-if(score === 3){
-   launchConfetti();
-   setTimeout(() => zoomToChute(), 1500);
+function checkGameEnd() {
+
+  if (ballsShot < 3) return;
+
+  if (score === 3) {
+
+    launchConfetti();
+
+    setTimeout(() => {
+      zoomToChute();
+    }, 1500);
+
+  } else {
+
+    document.getElementById('instructions').innerHTML =
+      '<p class="text-pink-300" style="font-size:8px;">TRY AGAIN - REFRESH PAGE</p>';
+
+  }
+
 }
-else{
-   document.getElementById('instructions').innerHTML =
-   '<p class="text-pink-300" style="font-size:8px;">TRY AGAIN</p>';
-}
-        }, 400);
-      }
-    }
 
     function launchConfetti() {
       const container = document.getElementById('confetti-container');
@@ -350,27 +358,17 @@ else{
       }
     }
 
-    function zoomToChute() {
-      document.getElementById('instructions').style.display = 'none';
-      booth.classList.add('booth-zoomed');
-      
-     setTimeout(() => {
+function zoomToChute() {
 
-  const madeShot = power > 70;
+  document.getElementById('instructions').style.display = 'none';
 
-  if(madeShot){
+  booth.classList.add('booth-zoomed');
 
-    score++;
+  setTimeout(() => {
+    printTickets();
+  }, 1800);
 
-    document.getElementById('score').textContent = score;
-
-    document.getElementById('net').classList.add('net-swish');
-
-    setTimeout(() => {
-      document.getElementById('net').classList.remove('net-swish');
-    }, 400);
-
-  }
+}
 
   ball.style.opacity = '0';
 
@@ -387,7 +385,7 @@ else{
       for (let i = 0; i < ticketCount; i++) {
         setTimeout(() => {
           const ticket = document.createElement('div');
-          ticket.className = 'ticket';
+          ticket.className = 'ticket-strip';
           ticket.style.cssText = `
             width: 60px; height: 28px; margin-top: 2px;
             background: linear-gradient(90deg, #fffbe6, #fff3b0);
