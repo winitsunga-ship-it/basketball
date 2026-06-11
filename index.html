@@ -1,458 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pixel Arcade Basketball</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cozy Arcade Hoops</title>
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+body{margin:0;background:linear-gradient(#232b4f,#12182d);overflow:hidden;font-family:monospace}
+#scene{width:100vw;height:100vh;position:relative;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;background:white;opacity:.6}
+#cabinet{
+position:absolute;left:50%;top:50%;
+transform:translate(-50%,-50%);
+width:720px;height:860px;
+transition:transform 3s ease;
+transform-origin:bottom left;
 }
-
-body{
-    background:#050913;
-    overflow:hidden;
-    font-family:monospace;
+.machine{
+position:absolute;inset:0;
+background:#5878b8;
+border:10px solid #f2a6c8;
+border-radius:16px;
+box-shadow:0 0 0 8px #415d96;
 }
-
-#game{
-    width:100vw;
-    height:100vh;
-    position:relative;
-    overflow:hidden;
-    transition:transform 3s ease;
+.scorebox{
+position:absolute;top:20px;left:50%;transform:translateX(-50%);
+width:240px;height:80px;background:#233252;color:#ffe9a8;
+display:flex;align-items:center;justify-content:center;font-size:42px;border-radius:8px;
 }
-
-/* Background */
-
-.arcade-bg{
-    position:absolute;
-    inset:0;
-    background:
-    radial-gradient(circle at center,#14284e 0%,#09101f 60%,#03060c 100%);
-}
-
-/* Booth */
-
-.booth{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    width:500px;
-    height:700px;
-}
-
-.frame{
-    position:absolute;
-    inset:0;
-    border:10px solid #35a8ff;
-    box-shadow:
-    0 0 20px #35a8ff,
-    0 0 50px #35a8ff,
-    inset 0 0 30px #35a8ff;
-}
-
 .tunnel{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    top:40px;
-    width:360px;
-    height:400px;
+position:absolute;left:110px;right:110px;top:120px;height:430px;
+background:linear-gradient(to bottom,#31466f,#22314f);
+clip-path:polygon(15% 0,85% 0,100% 100%,0 100%);
 }
-
-.ring{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    width:100%;
-    border:6px solid #4cc3ff;
-    height:50px;
+.hoop{position:absolute;top:220px;left:50%;transform:translateX(-50%);width:90px;height:10px;background:#f2a6c8}
+.net{position:absolute;top:230px;left:50%;transform:translateX(-50%);width:60px;height:55px;border:3px dashed #fff}
+.tray{
+position:absolute;left:40px;right:40px;bottom:80px;height:120px;
+background:#4767a4;border-radius:12px;
 }
-
-.ring:nth-child(1){top:0;}
-.ring:nth-child(2){top:50px;width:92%;}
-.ring:nth-child(3){top:100px;width:84%;}
-.ring:nth-child(4){top:150px;width:76%;}
-.ring:nth-child(5){top:200px;width:68%;}
-.ring:nth-child(6){top:250px;width:60%;}
-
-.scoreboard{
-    position:absolute;
-    top:460px;
-    left:50%;
-    transform:translateX(-50%);
-    width:260px;
-    height:120px;
-    border:6px solid #35a8ff;
-    background:#08111f;
-    box-shadow:0 0 20px #35a8ff;
-}
-
-.score-title{
-    text-align:center;
-    color:#fff;
-    margin-top:10px;
-    font-size:20px;
-}
-
-#score{
-    text-align:center;
-    color:#ff5db8;
-    font-size:52px;
-    margin-top:5px;
-}
-
-.hoop{
-    position:absolute;
-    top:290px;
-    left:50%;
-    transform:translateX(-50%);
-    width:100px;
-    height:14px;
-    background:#35a8ff;
-    box-shadow:0 0 15px #35a8ff;
-    border-radius:4px;
-}
-
-.net{
-    position:absolute;
-    top:304px;
-    left:50%;
-    transform:translateX(-50%);
-    width:70px;
-    height:70px;
-    border-left:3px solid white;
-    border-right:3px solid white;
-    border-bottom:3px solid white;
-}
-
-/* Ticket Chute */
-
-.ticket-chute{
-    position:absolute;
-    bottom:35px;
-    left:50%;
-    transform:translateX(-50%);
-    width:140px;
-    height:35px;
-    background:#111;
-    border:4px solid #999;
-}
-
-.ticket{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:65px;
-    width:90px;
-    height:0;
-    background:
-    repeating-linear-gradient(
-        to bottom,
-        #fff,
-        #fff 12px,
-        #ddd 12px,
-        #ddd 24px
-    );
-    overflow:hidden;
-}
-
-.ticket.show{
-    animation:ticketRoll 3s forwards;
-}
-
-@keyframes ticketRoll{
-    from{
-        height:0;
-    }
-    to{
-        height:260px;
-    }
-}
-
-/* Balls */
-
 .ball{
-    position:absolute;
-    width:50px;
-    height:50px;
-    border-radius:50%;
-    background:#ff4fa8;
-    box-shadow:
-    0 0 10px #ff4fa8,
-    inset -5px -5px 0 rgba(0,0,0,.2);
-    cursor:pointer;
+position:absolute;width:50px;height:50px;border-radius:50%;
+background:#f39ac7;bottom:30px;cursor:grab;
+box-shadow:inset -6px -6px rgba(0,0,0,.15);
 }
-
-.ball::before{
-    content:'';
-    position:absolute;
-    left:22px;
-    top:0;
-    width:4px;
-    height:50px;
-    background:#8c0049;
+.ticket-slot{
+position:absolute;
+left:35px;
+bottom:25px;
+width:80px;height:18px;
+background:#1a1a1a;border-radius:3px;
 }
-
-.ball::after{
-    content:'';
-    position:absolute;
-    left:0;
-    top:22px;
-    width:50px;
-    height:4px;
-    background:#8c0049;
+.ticket{
+position:absolute;
+left:35px;
+bottom:43px;
+width:90px;
+height:0;
+background:#fff7d9;
+overflow:hidden;
+color:#444;
+font-size:12px;
+padding-top:0;
 }
-
-/* HUD */
-
-.instructions{
-    position:absolute;
-    top:20px;
-    width:100%;
-    text-align:center;
-    color:white;
-    font-size:20px;
-    text-shadow:0 0 10px #35a8ff;
+.ticket.print{animation:printTicket 4s forwards}
+@keyframes printTicket{
+to{height:420px;padding-top:10px}
 }
-
-/* Jackpot */
-
-#jackpot{
-    position:absolute;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    color:white;
-    font-size:80px;
-    text-shadow:
-    0 0 15px #ff4fa8,
-    0 0 30px #35a8ff;
-    opacity:0;
-    pointer-events:none;
-}
-
-#jackpot.show{
-    animation:fadeIn 1s forwards;
-}
-
-@keyframes fadeIn{
-    to{
-        opacity:1;
-    }
-}
-
-/* Confetti */
-
 .confetti{
-    position:absolute;
-    width:10px;
-    height:10px;
-    animation:fall linear forwards;
+position:absolute;width:10px;height:10px;
+animation:fall 4s linear forwards;
 }
-
 @keyframes fall{
-    from{
-        transform:translateY(-50px) rotate(0deg);
-    }
-    to{
-        transform:translateY(110vh) rotate(1080deg);
-    }
+to{transform:translateY(120vh) rotate(720deg)}
+}
+#msg{
+position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+color:white;font-size:60px;opacity:0;transition:1s;pointer-events:none;
+}
+#msg.show{opacity:1}
+.info{
+position:absolute;top:20px;width:100%;text-align:center;color:white
 }
 </style>
 </head>
-
 <body>
-
-<div id="game">
-
-<div class="arcade-bg"></div>
-
-<div class="instructions">
-    CLICK THE PINK BALLS TO SHOOT • SCORE ALL 3
+<div id="scene">
+<div class="info">Drag a pink ball upward and release. Score all 3.</div>
+<div id="cabinet">
+<div class="machine"></div>
+<div class="scorebox"><span id="score">0</span>/3</div>
+<div class="tunnel"></div>
+<div class="hoop"></div>
+<div class="net"></div>
+<div class="tray">
+<div class="ball" style="left:180px"></div>
+<div class="ball" style="left:300px"></div>
+<div class="ball" style="left:420px"></div>
 </div>
-
-<div class="booth">
-
-    <div class="frame"></div>
-
-    <div class="tunnel">
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-        <div class="ring"></div>
-    </div>
-
-    <div class="hoop"></div>
-    <div class="net"></div>
-
-    <div class="scoreboard">
-        <div class="score-title">SCORE</div>
-        <div id="score">0</div>
-    </div>
-
-    <div class="ticket"></div>
-    <div class="ticket-chute"></div>
-
+<div class="ticket"></div>
+<div class="ticket-slot"></div>
 </div>
-
-<div id="jackpot">
-    🎉 JACKPOT 🎉
-    <div style="font-size:40px;">
-        +500 TICKETS
-    </div>
+<div id="msg">🎟 500 TICKETS 🎟</div>
 </div>
-
-</div>
-
 <script>
-
-const game = document.getElementById("game");
-const scoreText = document.getElementById("score");
-const jackpot = document.getElementById("jackpot");
-const ticket = document.querySelector(".ticket");
-
-let score = 0;
-
-const startX = window.innerWidth/2 - 90;
-const startY = window.innerHeight - 120;
-
-for(let i=0;i<3;i++){
-
-    const ball = document.createElement("div");
-    ball.className = "ball";
-
-    ball.style.left = (startX + i*70) + "px";
-    ball.style.top = startY + "px";
-
-    game.appendChild(ball);
-
-    ball.addEventListener("click",()=>shootBall(ball));
+for(let i=0;i<120;i++){
+ let s=document.createElement('div');
+ s.className='star';
+ s.style.left=Math.random()*100+'vw';
+ s.style.top=Math.random()*100+'vh';
+ document.body.appendChild(s);
 }
 
-function shootBall(ball){
+let score=0;
+const scoreEl=document.getElementById('score');
+const cabinet=document.getElementById('cabinet');
+const ticket=document.querySelector('.ticket');
+const msg=document.getElementById('msg');
 
-    ball.style.pointerEvents="none";
+document.querySelectorAll('.ball').forEach(ball=>{
+ let dragging=false,startX,startY;
 
-    const hoopX = window.innerWidth/2;
-    const hoopY = window.innerHeight/2 - 60;
+ ball.addEventListener('pointerdown',e=>{
+  dragging=true;
+  startX=e.clientX;
+  startY=e.clientY;
+ });
 
-    const startLeft = parseFloat(ball.style.left);
-    const startTop = parseFloat(ball.style.top);
+ window.addEventListener('pointerup',e=>{
+  if(!dragging)return;
+  dragging=false;
 
-    let progress = 0;
+  const dx=e.clientX-startX;
+  const dy=startY-e.clientY;
 
-    const anim = setInterval(()=>{
+  if(dy<40)return;
 
-        progress += 0.03;
+  shoot(ball,dx,dy);
+ });
+});
 
-        const x =
-        startLeft +
-        (hoopX-startLeft)*progress;
+function shoot(ball,dx,dy){
+ ball.style.pointerEvents='none';
 
-        const y =
-        startTop +
-        (hoopY-startTop)*progress -
-        Math.sin(progress*Math.PI)*200;
+ const startL=ball.offsetLeft+40;
+ let p=0;
 
-        ball.style.left = x+"px";
-        ball.style.top = y+"px";
+ const targetX=360+(dx*.2);
+ const targetY=230;
 
-        if(progress>=1){
+ const anim=setInterval(()=>{
+  p+=0.03;
 
-            clearInterval(anim);
+  const x=startL+(targetX-startL)*p;
+  const y=640-(p*350)-Math.sin(p*Math.PI)*150;
 
-            score++;
-            scoreText.textContent = score;
+  ball.style.left=x+'px';
+  ball.style.top=y+'px';
+  ball.style.bottom='auto';
 
-            ball.remove();
+  if(p>=1){
+   clearInterval(anim);
 
-            screenShake();
+   const made=Math.abs(targetX-360)<90;
 
-            if(score===3){
-                jackpotSequence();
-            }
-        }
+   if(made){
+    score++;
+    scoreEl.textContent=score;
+   }
 
-    },16);
+   ball.remove();
+
+   if(score===3){
+    winSequence();
+   }
+  }
+ },16);
 }
 
-function screenShake(){
+function winSequence(){
 
-    game.animate([
-        {transform:'translateX(-10px)'},
-        {transform:'translateX(10px)'},
-        {transform:'translateX(0px)'}
-    ],{
-        duration:200
-    });
+ const colors=['#f39ac7','#ffffff','#ffe9a8','#88aaff'];
+
+ for(let i=0;i<250;i++){
+  let c=document.createElement('div');
+  c.className='confetti';
+  c.style.left=Math.random()*100+'vw';
+  c.style.top='-10px';
+  c.style.background=colors[Math.floor(Math.random()*colors.length)];
+  document.body.appendChild(c);
+ }
+
+ setTimeout(()=>{
+   cabinet.style.transform='translate(-15%,-20%) scale(2.4)';
+ },1000);
+
+ setTimeout(()=>{
+   ticket.classList.add('print');
+   ticket.innerHTML='<center>500<br>TICKETS<br>★★★★★<br>JACKPOT</center>';
+ },3500);
+
+ setTimeout(()=>msg.classList.add('show'),6500);
 }
-
-function jackpotSequence(){
-
-    createConfetti();
-
-    setTimeout(()=>{
-
-        game.style.transform =
-        "scale(2.3) translateY(120px)";
-
-    },500);
-
-    setTimeout(()=>{
-
-        ticket.classList.add("show");
-
-    },2500);
-
-    setTimeout(()=>{
-
-        jackpot.classList.add("show");
-
-    },4500);
-}
-
-function createConfetti(){
-
-    const colors = [
-        "#ff4fa8",
-        "#35a8ff",
-        "#ffffff",
-        "#7d5cff"
-    ];
-
-    for(let i=0;i<250;i++){
-
-        const c = document.createElement("div");
-
-        c.className = "confetti";
-
-        c.style.left =
-        Math.random()*100 + "vw";
-
-        c.style.background =
-        colors[Math.floor(
-        Math.random()*colors.length)];
-
-        c.style.animationDuration =
-        (3 + Math.random()*4) + "s";
-
-        game.appendChild(c);
-
-        setTimeout(()=>c.remove(),7000);
-    }
-}
-
 </script>
-
 </body>
 </html>
