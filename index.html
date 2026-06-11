@@ -10,10 +10,8 @@
   <style>
     html, body { height: 100%; margin: 0; overflow: hidden; }
     
-    /* Default game elements use arcade font */
     .arcade-font, .arcade-font * { font-family: 'Press Start 2P', monospace; }
     
-    /* Dedicated cursive styling for aesthetic letter */
     .cursive-text {
       font-family: 'Playball', cursive;
       text-shadow: 0 0 12px rgba(244, 114, 182, 0.4);
@@ -226,11 +224,11 @@
     let ballsShot = 0;
     const booth = document.getElementById('booth');
 
-    // Music Engagement Unlock
+    // First Click Interaction Init
     window.addEventListener('click', () => {
       const bgMusic = document.getElementById('audio-bg-game');
       if (bgMusic.paused && ballsShot < 3) { 
-        bgMusic.volume = 0.5; 
+        bgMusic.volume = 0.25; // Lowered game music volume by 50%
         bgMusic.play().catch(() => {}); 
       }
     }, { once: true });
@@ -260,7 +258,10 @@
       ball.style.boxShadow = 'none';
       ball.classList.add(`ball-${index}-flying`);
       
-      document.getElementById('audio-fx-shoot').play().catch(() => {});
+      // Triggers instantly for every ball shot
+      const shootSound = document.getElementById('audio-fx-shoot');
+      shootSound.currentTime = 0; 
+      shootSound.play().catch(() => {});
       
       setTimeout(() => {
         score++;
@@ -277,10 +278,23 @@
 
     function checkGameEnd() {
       if (ballsShot >= 3) {
-        document.getElementById('audio-bg-game').pause();
+        const bgMusic = document.getElementById('audio-bg-game');
         const winSound = document.getElementById('audio-fx-winner');
+        
+        // 1. Fade out the game background music smoothly
+        let fadeOutGame = setInterval(() => {
+          if (bgMusic.volume > 0.02) {
+            bgMusic.volume -= 0.02;
+          } else {
+            clearInterval(fadeOutGame);
+            bgMusic.pause();
+          }
+        }, 100);
+
+        // 2. Play winner sound effect immediately
         winSound.play().catch(() => {});
         
+        // 3. Trigger cinematic camera shift and launch celebratory elements
         setTimeout(() => {
           launchConfetti();
           setTimeout(() => zoomToChute(), 1500);
@@ -308,12 +322,16 @@
       document.getElementById('instructions').style.display = 'none';
       booth.classList.add('booth-zoomed');
       
+      // 4. Fade in the zoom track cleanly after the winner music finishes sequence
       const z = document.getElementById('audio-bg-zoom');
       z.volume = 0; 
       z.play().catch(() => {});
-      let fadeAudio = setInterval(() => { 
-        if (z.volume < 0.5) z.volume += 0.05; 
-        else clearInterval(fadeAudio); 
+      let fadeInZoom = setInterval(() => { 
+        if (z.volume < 0.5) {
+          z.volume += 0.05; 
+        } else {
+          clearInterval(fadeInZoom); 
+        }
       }, 200);
 
       setTimeout(() => {
@@ -384,7 +402,6 @@
         );
       }, 200);
 
-      // Interactive Grabbing/Scrolling Core Logic Engine
       let isDragging = false;
       let startY = 0;
       let currentY = 0;
