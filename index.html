@@ -151,7 +151,9 @@ left:70px;
 right:70px;
 top:150px;
 height:260px;
-
+      
+pointer-events:none;
+      
 background:linear-gradient(
 180deg,
 rgba(0,0,0,.15),
@@ -293,7 +295,7 @@ document.addEventListener('pointerup', e => {
 
 });
 
-    function shootBall(ball) {
+  function shootBall(ball, power) {
       ball.dataset.shot = 'true';
       ball.style.cursor = 'default';
       ball.classList.add('ball-flying');
@@ -320,16 +322,14 @@ if(madeShot){
     }
 
     function checkGameEnd() {
-if(score === 3) {
-        setTimeout(() => {
-          if (score > 0) {
-            launchConfetti();
-            setTimeout(() => zoomToChute(), 1500);
-          } else {
-            // Show "try again" message
-            document.getElementById('instructions').innerHTML = '<p class="text-pink-300" style="font-size:8px;">NO SCORE! TAP TO RETRY</p>';
-            document.getElementById('instructions').onclick = () => location.reload();
-          }
+if(score === 3){
+   launchConfetti();
+   setTimeout(() => zoomToChute(), 1500);
+}
+else{
+   document.getElementById('instructions').innerHTML =
+   '<p class="text-pink-300" style="font-size:8px;">TRY AGAIN</p>';
+}
         }, 400);
       }
     }
@@ -354,10 +354,31 @@ if(score === 3) {
       document.getElementById('instructions').style.display = 'none';
       booth.classList.add('booth-zoomed');
       
-      setTimeout(() => {
-        printTickets();
-      }, 1800);
-    }
+     setTimeout(() => {
+
+  const madeShot = power > 70;
+
+  if(madeShot){
+
+    score++;
+
+    document.getElementById('score').textContent = score;
+
+    document.getElementById('net').classList.add('net-swish');
+
+    setTimeout(() => {
+      document.getElementById('net').classList.remove('net-swish');
+    }, 400);
+
+  }
+
+  ball.style.opacity = '0';
+
+  ballsShot++;
+
+  checkGameEnd();
+
+}, 800);
 
     function printTickets() {
       const output = document.getElementById('ticket-output');
