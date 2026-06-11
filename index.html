@@ -33,9 +33,20 @@
       100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
     }
     
+    /* A smoother, more natural mechanical feed animation */
     @keyframes rollDown {
       0% { transform: translateY(-100%); }
       100% { transform: translateY(0); }
+    }
+
+    /* Invisible scrollbar utility to keep arcade machine aesthetics clean */
+    .hide-scrollbar {
+      overflow-y: scroll;
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
     }
     
     .ball {
@@ -89,7 +100,6 @@
       100% { transform: scaleY(1); }
     }
 
-    /* Swish Text Juice */
     .swish-popup {
       animation: swishUp 0.6s ease-out forwards;
     }
@@ -161,7 +171,7 @@
       <div id="ticket-chute" class="relative z-10" style="width: 70px; height: 20px; background: #000; border: 3px solid #333; border-radius: 3px;">
        <div class="absolute inset-1 bg-gray-800 rounded-sm"></div><span class="absolute -top-6 left-0 text-green-300" style="font-size:5px;">TICKETS</span>
       </div>
-      <div id="ticket-output" class="absolute" style="top: 15px; left: 0; width: 70px; height: 300px; overflow: hidden; z-index: 5;"></div>
+      <div id="ticket-output" class="absolute hide-scrollbar" style="top: 15px; left: 0; width: 70px; height: 300px; z-index: 5;"></div>
      </div>
      
      <div class="absolute bottom-0 left-0 right-0 h-12 z-40" style="background: linear-gradient(180deg, #0a1e3d, #061428); border-top: 3px solid #1e3a5f;"></div>
@@ -194,7 +204,7 @@
         mapToCapabilities: (config) => ({
           recolorables: [
             { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
-            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
+            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color = v }); }},
             { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
             { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
             { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
@@ -236,18 +246,12 @@
     function shootBall(ball, index) {
       ball.dataset.shot = 'true';
       ball.style.cursor = 'default';
-      
-      // Clear standard box shadow to make the ball feel like it's high in the air
       ball.style.boxShadow = 'none';
-      
-      // Assign the spinning arc animation
       ball.classList.add(`ball-${index}-flying`);
       
       setTimeout(() => {
         score++;
         document.getElementById('score').textContent = score;
-        
-        // Visual net & text feedback
         document.getElementById('net').classList.add('net-swish');
         triggerSwishText();
         
@@ -300,13 +304,21 @@
       ticketImg.src = 'ticket.png';
       ticketImg.alt = 'Long Ticket';
       
+      // Adjusted configuration to create an explicit structural height (allowing scrolling)
+      // and used a slower custom cubic-bezier curve for a premium mechanical feed sensation.
       ticketImg.style.cssText = `
         position: absolute;
         top: 0;
         left: 5px;
         width: 60px;
-        animation: rollDown 3.5s ease-out forwards;
+        height: 550px; 
+        cursor: grab;
+        animation: rollDown 5.2s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
       `;
+      
+      // Update cursor when clicking/dragging the ticket
+      ticketImg.addEventListener('mousedown', () => ticketImg.style.cursor = 'grabbing');
+      ticketImg.addEventListener('mouseup', () => ticketImg.style.cursor = 'grab');
       
       output.appendChild(ticketImg);
     }
