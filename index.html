@@ -223,14 +223,27 @@
     let score = 0;
     let ballsShot = 0;
     const booth = document.getElementById('booth');
+    const bgMusic = document.getElementById('audio-bg-game');
 
-    // First Click Interaction Init
-    window.addEventListener('click', () => {
-      const bgMusic = document.getElementById('audio-bg-game');
-      if (bgMusic.paused && ballsShot < 3) { 
-        bgMusic.volume = 0.25; // Lowered game music volume by 50%
-        bgMusic.play().catch(() => {}); 
+    // Function to safely trigger background music on load/interaction
+    function startMusicEngine() {
+      if (bgMusic.paused && ballsShot < 3) {
+        bgMusic.volume = 0.18; // Lowered baseline volume by an additional 25%
+        bgMusic.play().catch(() => {
+          // Fallback if browser autoplay restrictions block it on initial load
+          console.log("Autoplay paused. Awaiting first user gesture interaction...");
+        });
       }
+    }
+
+    // Try executing right away when the website finishes loading
+    window.onload = () => {
+      startMusicEngine();
+    };
+
+    // Global interaction fallback listener to catch user engagement immediately 
+    window.addEventListener('click', () => {
+      startMusicEngine();
     }, { once: true });
 
     document.querySelectorAll('.ball').forEach((ball, i) => {
@@ -258,7 +271,6 @@
       ball.style.boxShadow = 'none';
       ball.classList.add(`ball-${index}-flying`);
       
-      // Triggers instantly for every ball shot
       const shootSound = document.getElementById('audio-fx-shoot');
       shootSound.currentTime = 0; 
       shootSound.play().catch(() => {});
@@ -278,10 +290,9 @@
 
     function checkGameEnd() {
       if (ballsShot >= 3) {
-        const bgMusic = document.getElementById('audio-bg-game');
         const winSound = document.getElementById('audio-fx-winner');
         
-        // 1. Fade out the game background music smoothly
+        // Fade out the game background music smoothly
         let fadeOutGame = setInterval(() => {
           if (bgMusic.volume > 0.02) {
             bgMusic.volume -= 0.02;
@@ -291,10 +302,9 @@
           }
         }, 100);
 
-        // 2. Play winner sound effect immediately
+        // Play winner sound effect immediately
         winSound.play().catch(() => {});
         
-        // 3. Trigger cinematic camera shift and launch celebratory elements
         setTimeout(() => {
           launchConfetti();
           setTimeout(() => zoomToChute(), 1500);
@@ -322,7 +332,6 @@
       document.getElementById('instructions').style.display = 'none';
       booth.classList.add('booth-zoomed');
       
-      // 4. Fade in the zoom track cleanly after the winner music finishes sequence
       const z = document.getElementById('audio-bg-zoom');
       z.volume = 0; 
       z.play().catch(() => {});
