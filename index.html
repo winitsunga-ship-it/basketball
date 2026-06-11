@@ -2,7 +2,447 @@
 <html class="h-full">
  <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"><!doctype html>
+<html class="h-full">
+ <head>
+  <script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Arcade Basketball</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playball&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    
+    /* Default game elements use arcade font */
+    .arcade-font, .arcade-font * { font-family: 'Press Start 2P', monospace; }
+    
+    /* Dedicated cursive styling for your aesthetic letter */
+    .cursive-text {
+      font-family: 'Playball', cursive;
+    }
+    
+    .booth-container {
+      transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: top left;
+    }
+    .booth-zoomed {
+      transform: scale(3.2) translate(35px, 20px);
+    }
+    
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      top: -10px;
+      animation: confettiFall 2.5s linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+    }
+    
+    @keyframes rollDown {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(0); }
+    }
+
+    .hide-scrollbar {
+      overflow: hidden;
+    }
+    
+    .ball {
+      cursor: grab;
+      transition: transform 0.1s;
+    }
+    .ball:active { cursor: grabbing; }
+    
+    .pixel-border {
+      box-shadow: 
+        4px 0 0 0 #1e3a5f,
+        -4px 0 0 0 #1e3a5f,
+        0 4px 0 0 #1e3a5f,
+        0 -4px 0 0 #1e3a5f;
+    }
+
+    .ball-0-flying {
+      animation: arcBall0 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    }
+    @keyframes arcBall0 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: translate(56px, -320px) scale(0.7) rotate(180deg); opacity: 1; }
+      100% { transform: translate(112px, -275px) scale(0.4) rotate(360deg); opacity: 0; }
+    }
+
+    .ball-1-flying {
+      animation: arcBall1 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    }
+    @keyframes arcBall1 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: translate(6px, -320px) scale(0.7) rotate(-180deg); opacity: 1; }
+      100% { transform: translate(12px, -275px) scale(0.4) rotate(-360deg); opacity: 0; }
+    }
+
+    .ball-2-flying {
+      animation: arcBall2 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    }
+    @keyframes arcBall2 {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: translate(-49px, -320px) scale(0.7) rotate(180deg); opacity: 1; }
+      100% { transform: translate(-98px, -275px) scale(0.4) rotate(360deg); opacity: 0; }
+    }
+
+    .net-swish {
+      animation: netSwish 0.4s ease-in-out;
+    }
+    @keyframes netSwish {
+      0% { transform: scaleY(1); }
+      50% { transform: scaleY(1.3); }
+      100% { transform: scaleY(1); }
+    }
+
+    .swish-popup {
+      animation: swishUp 0.6s ease-out forwards;
+    }
+    @keyframes swishUp {
+      0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+      30% { transform: translate(-50%, -20px) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -35px) scale(1); opacity: 0; }
+    }
+
+    /* Elegant vintage fading layout for the romantic message container */
+    #love-note-container {
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+    
+    .typewriter-cursor::after {
+      content: '|';
+      animation: blink 0.8s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gray-900 flex items-center justify-center overflow-hidden arcade-font">
+  <div id="game-wrapper" class="relative w-full h-full flex items-center justify-center">
+   
+   <div id="love-note-container" class="absolute left-[8%] top-[25%] w-[320px] max-w-[28vw] pointer-events-none z-50 text-left">
+     <div id="note-line1" class="cursive-text text-pink-300 text-3xl md:text-4xl leading-relaxed tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"></div>
+     <div id="note-line2" class="cursive-text text-pink-400 text-2xl md:text-3xl mt-4 pl-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"></div>
+   </div>
+
+   <div id="confetti-container" class="absolute inset-0 pointer-events-none z-50"></div>
+   
+   <div id="booth" class="booth-container relative" style="width: 380px; height: 580px;">
+    <div class="absolute inset-0 rounded-lg" style="background: linear-gradient(180deg, #0a2a4a 0%, #0d3b6b 40%, #1a4f8a 100%); border: 6px solid #1e3a5f;">
+     
+     <div class="absolute top-0 left-0 right-0 h-14 flex items-center justify-center" style="background: linear-gradient(180deg, #ff69b4, #ff1493); border-bottom: 4px solid #1e3a5f;">
+      <span id="title-text" class="text-white text-xs tracking-wide" style="text-shadow: 2px 2px #000;">ARCADE HOOPS</span>
+     </div>
+     
+     <div class="absolute top-16 left-1/2 -translate-x-1/2 bg-black px-4 py-2 pixel-border">
+      <span class="text-green-400 text-xs">SCORE: <span id="score">0</span>/3</span>
+     </div>
+     
+     <div class="absolute" style="top: 90px; left: 50%; transform: translateX(-50%); z-index: 20;">
+      <div id="swish-container" class="absolute left-1/2 top-[-15px] pointer-events-none z-50 whitespace-nowrap"></div>
+
+      <div class="relative" style="width: 100px; height: 70px; background: rgba(255,255,255,0.15); border: 3px solid #fff; border-radius: 4px;">
+       <div id="hoop" class="absolute" style="bottom: -8px; left: 50%; transform: translateX(-50%); width: 60px; height: 8px; background: #ff4500; border-radius: 0 0 4px 4px; border: 2px solid #cc3700;">
+       </div>
+       <div id="net" class="absolute" style="bottom: -35px; left: 50%; transform: translateX(-50%); width: 50px; height: 30px;">
+        <svg width="50" height="30" viewbox="0 0 50 30">
+         <path d="M5 0 L10 10 L5 20 L10 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M15 0 L20 10 L15 20 L20 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M25 0 L30 10 L25 20 L30 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M35 0 L40 10 L35 20 L40 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" /> <path d="M45 0 L40 10 L45 20 L40 30" stroke="white" stroke-width="1.5" fill="none" opacity="0.7" />
+        </svg>
+       </div>
+      </div>
+     </div>
+     
+     <div class="absolute left-2 top-20 flex flex-col gap-3 z-10">
+      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse"></div>
+      <div class="w-3 h-3 rounded-full bg-pink-400 animate-pulse" style="animation-delay:0.3s"></div>
+      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse" style="animation-delay:0.6s"></div>
+     </div>
+     <div class="absolute right-2 top-20 flex flex-col gap-3 z-10">
+      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse"></div>
+      <div class="w-3 h-3 rounded-full bg-pink-400 animate-pulse" style="animation-delay:0.3s"></div>
+      <div class="w-3 h-3 rounded-full bg-yellow-300 animate-pulse" style="animation-delay:0.6s"></div>
+     </div>
+     
+     <div id="ball-area" class="absolute z-30" style="bottom: 100px; left: 0; right: 0; height: 160px;">
+      <div id="ball-0" class="ball absolute rounded-full" style="width: 36px; height: 36px; background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493); border: 2px solid #cc0066; bottom: 20px; left: 60px; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3);">
+       <div style="position:absolute; top:30%; left:20%; width:60%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(-20deg)"></div>
+       <div style="position:absolute; top:50%; left:15%; width:70%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(10deg)"></div>
+      </div>
+      <div id="ball-1" class="ball absolute rounded-full" style="width: 36px; height: 36px; background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493); border: 2px solid #cc0066; bottom: 20px; left: 160px; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3);">
+       <div style="position:absolute; top:30%; left:20%; width:60%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(-20deg)"></div>
+       <div style="position:absolute; top:50%; left:15%; width:70%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(10deg)"></div>
+      </div>
+      <div id="ball-2" class="ball absolute rounded-full" style="width: 36px; height: 36px; background: radial-gradient(circle at 30% 30%, #ff9ecf, #ff1493); border: 2px solid #cc0066; bottom: 20px; left: 270px; box-shadow: inset -3px -3px 6px rgba(0,0,0,0.3);">
+       <div style="position:absolute; top:30%; left:20%; width:60%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(-20deg)"></div>
+       <div style="position:absolute; top:50%; left:15%; width:70%; height:2px; background:rgba(0,0,0,0.2); border-radius:50%; transform:rotate(10deg)"></div>
+      </div>
+     </div>
+     
+     <div id="ticket-chute-area" class="absolute z-10" style="top: 20px; left: 15px; width: 80px;">
+      <div id="ticket-chute" class="relative z-10" style="width: 70px; height: 20px; background: #000; border: 3px solid #333; border-radius: 3px;">
+       <div class="absolute inset-1 bg-gray-800 rounded-sm"></div>
+       <span class="absolute -top-5 left-1/2 -translate-x-1/2 text-green-300 animate-pulse whitespace-nowrap" style="font-size:5px;">TICKETS</span>
+      </div>
+      <div id="ticket-output" class="absolute hide-scrollbar" style="top: 15px; left: 0; width: 70px; height: 440px; z-index: 5; cursor: grab;"></div>
+     </div>
+     
+     <div class="absolute bottom-0 left-0 right-0 h-12 z-40" style="background: linear-gradient(180deg, #0a1e3d, #061428); border-top: 3px solid #1e3a5f;"></div>
+    </div>
+   </div>
+   
+   <div id="instructions" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-80 px-4 py-2 rounded z-50">
+    <p class="text-pink-300 text-xs text-center" style="font-size:8px;">CLICK BALLS TO SHOOT!</p>
+   </div>
+  </div>
+
+  <script>
+    const defaultConfig = {
+      game_title: 'ARCADE HOOPS',
+      background_color: '#111827',
+      booth_color: '#0d3b6b',
+      accent_color: '#ff1493',
+      text_color: '#ffffff',
+      chute_color: '#22c55e'
+    };
+
+    if (window.elementSdk && window.elementSdk.init) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          document.getElementById('title-text').textContent = config.game_title || defaultConfig.game_title;
+          document.body.style.backgroundColor = config.background_color || defaultConfig.background_color;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }},
+            { get: () => config.booth_color || defaultConfig.booth_color, set: (v) => { config.booth_color = v; window.elementSdk.setConfig({ booth_color: v }); }},
+            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }},
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }},
+            { get: () => config.chute_color || defaultConfig.chute_color, set: (v) => { config.chute_color = v; window.elementSdk.setConfig({ chute_color: v }); }}
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['game_title', config.game_title || defaultConfig.game_title]
+        ])
+      });
+    }
+
+    let score = 0;
+    let ballsShot = 0;
+    const booth = document.getElementById('booth');
+
+    document.querySelectorAll('.ball').forEach((ball, i) => {
+      ball.addEventListener('click', (e) => {
+        if (ball.dataset.shot === 'true') return;
+        shootBall(ball, i);
+      });
+    });
+
+    function triggerSwishText() {
+      const container = document.getElementById('swish-container');
+      const textEl = document.createElement('div');
+      textEl.className = 'absolute text-yellow-400 font-bold swish-popup';
+      textEl.style.fontSize = '9px';
+      textEl.style.textShadow = '2px 2px #000';
+      textEl.textContent = 'SWISH!';
+      
+      container.appendChild(textEl);
+      setTimeout(() => textEl.remove(), 600);
+    }
+
+    function shootBall(ball, index) {
+      ball.dataset.shot = 'true';
+      ball.style.cursor = 'default';
+      ball.style.boxShadow = 'none';
+      ball.classList.add(`ball-${index}-flying`);
+      
+      setTimeout(() => {
+        score++;
+        document.getElementById('score').textContent = score;
+        document.getElementById('net').classList.add('net-swish');
+        triggerSwishText();
+        
+        setTimeout(() => document.getElementById('net').classList.remove('net-swish'), 400);
+        ball.style.opacity = '0';
+        ballsShot++;
+        checkGameEnd();
+      }, 800);
+    }
+
+    function checkGameEnd() {
+      if (ballsShot >= 3) {
+        setTimeout(() => {
+          launchConfetti();
+          setTimeout(() => zoomToChute(), 1500);
+        }, 400);
+      }
+    }
+
+    function launchConfetti() {
+      const container = document.getElementById('confetti-container');
+      const colors = ['#ff1493', '#00bfff', '#ffd700', '#00ff88', '#ff6b6b', '#a855f7'];
+      for (let i = 0; i < 80; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 1 + 's';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        piece.style.width = (4 + Math.random() * 8) + 'px';
+        piece.style.height = (4 + Math.random() * 8) + 'px';
+        container.appendChild(piece);
+      }
+    }
+
+    function zoomToChute() {
+      document.getElementById('instructions').style.display = 'none';
+      booth.classList.add('booth-zoomed');
+      
+      setTimeout(() => {
+        printTickets();
+      }, 1800);
+    }
+
+    // Dynamic procedural typist layout to sync elegantly with the 15-second roll
+    function typeWriterEffect(text1, text2) {
+      const container = document.getElementById('love-note-container');
+      const line1El = document.getElementById('note-line1');
+      const line2El = document.getElementById('note-line2');
+      
+      container.style.opacity = '1';
+      line1El.classList.add('typewriter-cursor');
+      
+      let i = 0;
+      let j = 0;
+      
+      // Steady pacing to look natural and match the speed of the rising image strip
+      function typeLine1() {
+        if (i < text1.length) {
+          line1El.textContent += text1.charAt(i);
+          i++;
+          setTimeout(typeLine1, 110);
+        } else {
+          line1El.classList.remove('typewriter-cursor');
+          line2El.classList.add('typewriter-cursor');
+          setTimeout(typeLine2, 600);
+        }
+      }
+      
+      function typeLine2() {
+        if (j < text2.length) {
+          line2El.textContent += text2.charAt(j);
+          j++;
+          setTimeout(typeLine2, 100);
+        } else {
+          // Keep the flashing active on the signature line for aesthetic points
+        }
+      }
+      
+      typeLine1();
+    }
+
+    function printTickets() {
+      const output = document.getElementById('ticket-output');
+      output.innerHTML = ''; 
+      
+      const ticketImg = document.createElement('img');
+      ticketImg.src = 'ticket.png';
+      ticketImg.alt = 'Ticket';
+      
+      ticketImg.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 5px;
+        width: 60px;
+        height: auto; 
+        transform: translateY(-100%);
+        animation: rollDown 15s linear forwards;
+        user-select: none;
+        -webkit-user-drag: none;
+      `;
+      
+      output.appendChild(ticketImg);
+
+      // Triggers the aesthetic cursive typewriter exactly as the ticket motor activates
+      setTimeout(() => {
+        typeWriterEffect(
+          "Happy 5th monthsary, Yayang!!", 
+          "-yours only, wywyn"
+        );
+      }, 200);
+
+      let isDragging = false;
+      let startY = 0;
+      let currentY = 0;
+
+      ticketImg.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        
+        const style = window.getComputedStyle(ticketImg);
+        const matrix = new DOMMatrix(style.transform);
+        currentY = matrix.f;
+        
+        ticketImg.style.animation = 'none'; 
+        ticketImg.style.transform = `translateY(${currentY}px)`;
+        ticketImg.style.cursor = 'grabbing';
+        startY = e.pageY - currentY;
+        e.preventDefault();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          ticketImg.style.cursor = 'grab';
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        currentY = e.pageY - startY;
+        
+        if (currentY < -600) currentY = -600;
+        if (currentY > 450) currentY = 450;
+        
+        ticketImg.style.transform = `translateY(${currentY}px)`;
+      });
+
+      output.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (ticketImg.style.animation !== 'none') {
+          const style = window.getComputedStyle(ticketImg);
+          const matrix = new DOMMatrix(style.transform);
+          currentY = matrix.f;
+          ticketImg.style.animation = 'none';
+        }
+        currentY -= e.deltaY * 0.7;
+        
+        if (currentY < -600) currentY = -600;
+        if (currentY > 450) currentY = 450;
+        
+        ticketImg.style.transform = `translateY(${currentY}px)`;
+      });
+    }
+
+    lucide.createIcons();
+  </script>
+ </body>
+</html>
   <title>Retro Arcade Basketball</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
