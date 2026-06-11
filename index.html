@@ -62,6 +62,14 @@
         0 -4px 0 0 #1e3a5f;
     }
 
+    .start-btn-border {
+      box-shadow:
+        4px 0 0 0 #ec4899,
+        -4px 0 0 0 #ec4899,
+        0 4px 0 0 #ec4899,
+        0 -4px 0 0 #ec4899;
+    }
+
     .ball-0-flying {
       animation: arcBall0 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
     }
@@ -137,6 +145,12 @@
   <audio id="audio-bg-zoom" src="zoom-music.mp3" loop></audio>
   <audio id="audio-fx-shoot" src="shoot.mp3"></audio>
   <audio id="audio-fx-winner" src="winner.mp3"></audio>
+
+  <div id="trigger-screen" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-md transition-all duration-700 opacity-100">
+    <button id="start-game-btn" class="start-btn-border bg-pink-600 hover:bg-pink-500 text-white text-sm px-8 py-4 tracking-wider active:scale-95 transition-transform duration-100 shadow-[0_0_20px_rgba(236,72,153,0.5)]">
+      START
+    </button>
+  </div>
 
   <div id="game-wrapper" class="relative w-full h-full flex items-center justify-center">
    
@@ -224,27 +238,24 @@
     let ballsShot = 0;
     const booth = document.getElementById('booth');
     const bgMusic = document.getElementById('audio-bg-game');
+    const triggerScreen = document.getElementById('trigger-screen');
+    const startBtn = document.getElementById('start-game-btn');
 
-    // Function to safely trigger background music on load/interaction
-    function startMusicEngine() {
-      if (bgMusic.paused && ballsShot < 3) {
-        bgMusic.volume = 0.18; // Lowered baseline volume by an additional 25%
-        bgMusic.play().catch(() => {
-          // Fallback if browser autoplay restrictions block it on initial load
-          console.log("Autoplay paused. Awaiting first user gesture interaction...");
-        });
-      }
-    }
+    // Handler for the clear-and-start initialization overlay
+    startBtn.addEventListener('click', () => {
+      // 1. Kick off the music setup instantly via explicit user gesture interaction
+      bgMusic.volume = 0.18;
+      bgMusic.play().catch((err) => console.log("Audio failed:", err));
 
-    // Try executing right away when the website finishes loading
-    window.onload = () => {
-      startMusicEngine();
-    };
+      // 2. Animate out the blur layer smoothly
+      triggerScreen.classList.replace('opacity-100', 'opacity-0');
+      triggerScreen.style.pointerEvents = 'none';
 
-    // Global interaction fallback listener to catch user engagement immediately 
-    window.addEventListener('click', () => {
-      startMusicEngine();
-    }, { once: true });
+      // 3. Clean up element nodes out of DOM view completely after the fade completes
+      setTimeout(() => {
+        triggerScreen.remove();
+      }, 700);
+    });
 
     document.querySelectorAll('.ball').forEach((ball, i) => {
       ball.addEventListener('click', (e) => {
